@@ -7,9 +7,9 @@ class Budget
     public double income { get; set;}
     public double expense { get; set;}
     public double balance { get; set; }
-    public DateOnly trackDate { get; set;}
+    public DateOnly dateOfBudgetHandeled { get; set;}
 
-    public Budget(double income, double expense, DateOnly trackDate)
+    public Budget(double income, double expense, DateOnly dateOfBudgetHandeled)
     {
         this.income = income;
        
@@ -17,7 +17,7 @@ class Budget
         
         this.balance = income - expense;
         
-        this.trackDate = trackDate;
+        this.dateOfBudgetHandeled = dateOfBudgetHandeled;
     }
 }
 
@@ -27,49 +27,34 @@ class BudgetTracker
     {
         try
         {
-            DateOnly extTime = DateOnly.FromDateTime(DateTime.Now);
-            DateOnly yestTime = extTime.AddDays(-1);
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+            DateOnly yesterday = today.AddDays(-1);
 
-            String formattedDateTime = extTime.ToString("yyyyMMddHHmmss");
-            String formattedyestTime = yestTime.ToString("yyyyMMddHHmmss");
+            String formattedToday = today.ToString("yyyyMMdd");
+            
+            String formattedYesterday = yesterday.ToString("yyyyMMdd");
+            
             String folderPath = "F:\\SankhaProjects\\BudgetTracker\\DailyBudget";
-            String fileName = $"{formattedDateTime}.json";
-            String fileYestName = $"{formattedyestTime}.json";
+            
+            String fileName = $"{formattedToday}.json";
+            
+            String fileYestName = $"{formattedYesterday}.json";
+            
             bool fileExists = Directory.EnumerateFiles(folderPath, fileName, SearchOption.AllDirectories).Any();
+            
             bool fileYestExists = Directory.EnumerateFiles(folderPath, fileName, SearchOption.AllDirectories).Any();
+           
             if (!fileExists)
             {
-                String filePath = $"F:\\SankhaProjects\\BudgetTracker\\DailyBudget\\{formattedDateTime}.json";
+                String filePath = $"F:\\SankhaProjects\\BudgetTracker\\DailyBudget\\{formattedToday}.json";
 
-                Console.WriteLine("Welcome to the Daily Budget Tracker");
+                WelcomeMessage(today);
 
-                Console.WriteLine($"Its {extTime}");
-
-                Console.WriteLine("To calculate the daily balance Please enter your income and expenses.");
-
-                Console.WriteLine("**enter the money you had in the begining of the day as income**");
-
-                Console.Write("Income: ");
-
-                String inputIncome = Console.ReadLine();
-
-                Console.Write("Expenses: ");
-
-                String inputExpense = Console.ReadLine();
-
-                double inc = Convert.ToDouble(inputIncome);
-
-                Console.WriteLine(inc);
-
-                double exp = Convert.ToDouble(inputExpense);
-
-                Console.WriteLine(exp);
-
-                Budget budget = new Budget(inc, exp, extTime);
+                Budget budget = CalculateDailyBudget(today, incomeText, expenseText);
 
                 var options = new JsonSerializerOptions { WriteIndented = true };
 
-                string jsonString = JsonSerializer.Serialize(budget);
+                string jsonString = JsonSerializer.Serialize(budget, options);
 
                 File.WriteAllText(filePath, jsonString);
 
@@ -77,11 +62,11 @@ class BudgetTracker
             }
             else if(!IsFolderEmpty(folderPath) && !fileYestExists)
             {
-                String filePath = $"F:\\SankhaProjects\\BudgetTracker\\DailyBudget\\{formattedyestTime}.json";
+                String filePath = $"F:\\SankhaProjects\\BudgetTracker\\DailyBudget\\{formattedYesterday}.json";
 
                 Console.WriteLine("Welcome to the Daily Budget Tracker");
 
-                Console.WriteLine($"Its {yestTime}");
+                Console.WriteLine($"Its {yesterday}");
 
                 Console.WriteLine("To calculate the daily balance Please enter your income and expenses.");
 
@@ -89,21 +74,19 @@ class BudgetTracker
 
                 Console.Write("Income: ");
 
-                String inputIncome = Console.ReadLine();
+                String incomeText = Console.ReadLine();
 
                 Console.Write("Expenses: ");
 
-                String inputExpense = Console.ReadLine();
+                String expenseText = Console.ReadLine();
 
-                double inc = Convert.ToDouble(inputIncome);
+                if (string.IsNullOrWhiteSpace(incomeText) || string.IsNullOrWhiteSpace(expenseText))
+                {
+                    Console.WriteLine("Invalid input.");
+                    return;
+                }
 
-                Console.WriteLine(inc);
-
-                double exp = Convert.ToDouble(inputExpense);
-
-                Console.WriteLine(exp);
-
-                Budget budget = new Budget(inc, exp, yestTime);
+                Budget budget = CalculateDailyBudget(yesterday, incomeText, expenseText);
 
                 var options = new JsonSerializerOptions { WriteIndented = true };
 
@@ -111,7 +94,7 @@ class BudgetTracker
 
                 File.WriteAllText(filePath, jsonString);
 
-                Console.WriteLine(jsonString);
+                Console.WriteLine(jsonString, options);
             }
             else
             {
@@ -124,9 +107,38 @@ class BudgetTracker
         }
     }
 
-    static bool IsFolderEmpty(string path)
+    public static bool IsFolderEmpty(string path)
     {
         return Directory.Exists(path) &&
                Directory.GetFileSystemEntries(path).Length == 0;
+    }
+
+    public static Budget CalculateDailyBudget(DateOnly dateOfExpence,String incomeText, String expenseText)
+    {
+        if (!double.TryParse(incomeText, out double income))
+            throw new Exception("Invalid input for income. Please enter a valid number.");
+
+        if (!double.TryParse(expenseText, out double expense))
+            throw new Exception("Invalid input for expense. Please enter a valid number.");
+
+        Budget budget = new Budget(income, expense, dateOfExpence);
+        return budget;
+    }
+
+    public static void WelcomeMessage(DateOnly today)
+    {
+        Console.WriteLine("Welcome to the Daily Budget Tracker");
+
+        Console.WriteLine($"Its {today}");
+
+        Console.WriteLine("To calculate the daily balance Please enter your income and expenses.");
+
+        Console.WriteLine("**enter the money you had in the begining of the day as income**");
+        
+    }
+
+    public static String TakeincomeText(String input)
+    {
+       
     }
 }
