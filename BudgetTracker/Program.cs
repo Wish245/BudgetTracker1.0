@@ -50,6 +50,22 @@ class BudgetTracker
 
                 WelcomeMessage(today);
 
+                String? incomeText = TakeInput("Income: ");
+
+                String? expenseText = TakeInput("Expense: ");
+
+                if (string.IsNullOrWhiteSpace(incomeText) || !double.TryParse(incomeText, out double income))
+                {
+                    Console.WriteLine("Invalid income input.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(expenseText) || !double.TryParse(expenseText, out double expense))
+                {
+                    Console.WriteLine("Invalid income input.");
+                    return;
+                }
+
                 Budget budget = CalculateDailyBudget(today, incomeText, expenseText);
 
                 var options = new JsonSerializerOptions { WriteIndented = true };
@@ -58,31 +74,27 @@ class BudgetTracker
 
                 File.WriteAllText(filePath, jsonString);
 
-                Console.WriteLine(jsonString);
+                ShowTodayBudget(budget);
             }
             else if(!IsFolderEmpty(folderPath) && !fileYestExists)
             {
                 String filePath = $"F:\\SankhaProjects\\BudgetTracker\\DailyBudget\\{formattedYesterday}.json";
 
-                Console.WriteLine("Welcome to the Daily Budget Tracker");
+                WelcomeMessage(yesterday);
 
-                Console.WriteLine($"Its {yesterday}");
+                String? incomeText = TakeInput("Income: ");
 
-                Console.WriteLine("To calculate the daily balance Please enter your income and expenses.");
+                String? expenseText = TakeInput("Expense: ");
 
-                Console.WriteLine("**enter the money you had in the begining of the day as income**");
-
-                Console.Write("Income: ");
-
-                String incomeText = Console.ReadLine();
-
-                Console.Write("Expenses: ");
-
-                String expenseText = Console.ReadLine();
-
-                if (string.IsNullOrWhiteSpace(incomeText) || string.IsNullOrWhiteSpace(expenseText))
+                if (string.IsNullOrWhiteSpace(incomeText) || !double.TryParse(incomeText, out double income))
                 {
-                    Console.WriteLine("Invalid input.");
+                    Console.WriteLine("Invalid income input.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(expenseText) || !double.TryParse(expenseText, out double expense))
+                {
+                    Console.WriteLine("Invalid income input.");
                     return;
                 }
 
@@ -93,8 +105,8 @@ class BudgetTracker
                 string jsonString = JsonSerializer.Serialize(budget);
 
                 File.WriteAllText(filePath, jsonString);
-
-                Console.WriteLine(jsonString, options);
+                ShowTodayBudget(budget);
+                
             }
             else
             {
@@ -137,8 +149,24 @@ class BudgetTracker
         
     }
 
-    public static String TakeincomeText(String input)
+    public static String? TakeInput(String input)
     {
-       
+        Console.Write(input);
+        return Console.ReadLine();
     }
+
+    public static void ShowTodayBudget(Budget budget)
+    {
+        Console.WriteLine($"Your today income in the begining of the day {budget.income} LKR");
+        Console.WriteLine($"Your today expenses are {budget.expense} LKR");
+        Console.WriteLine($"Your today balance is {budget.balance} LKR");
+    }
+
+    public static void YesterdayAnalysis(Budget budget, Budget yesterdayBudget)
+    {
+        Console.WriteLine("Lets Do an analysis based on yesterday");
+        Console.WriteLine
+        
+    }
+ 
 }
