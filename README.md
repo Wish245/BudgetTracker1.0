@@ -33,12 +33,17 @@ System.Text.Json for JSON serialization/deserialization
 ## 🚀 Getting Started 
 
 ### Clone the repository:
+
 git clone https://github.com/Wish245/BudgetTracker1.0.git
+
 cd BudgetTracker1.0
 
 ### Build and run the application:
+
 dotnet build
+
 dotnet run
+
 Follow the console prompts to add or view your daily budgets.
 
 ## 📂 Data Storage
