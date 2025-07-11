@@ -5,7 +5,6 @@ using BudgetTracker;
 using BudgetAnalyzer;
 using System.Threading.Tasks;
 
-
 class BudgetViewer
 {
     public static async Task Main(String[] args)
@@ -16,29 +15,27 @@ class BudgetViewer
             DateOnly yesterday = today.AddDays(-1);
 
             String formattedToday = today.ToString("yyyyMMdd");
-            
             String formattedYesterday = yesterday.ToString("yyyyMMdd");
-            
-            String folderPath = "F:\\SankhaProjects\\BudgetTracker\\DailyBudget";
-            
+
+            string basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DailyBudget");
+            Directory.CreateDirectory(basePath);
+
+            String folderPath = basePath;
+
             String fileName = $"{formattedToday}.json";
-            
             String fileYestName = $"{formattedYesterday}.json";
-            
+
             bool fileExists = Directory.EnumerateFiles(folderPath, fileName, SearchOption.AllDirectories).Any();
-            
             bool fileYestExists = Directory.EnumerateFiles(folderPath, fileName, SearchOption.AllDirectories).Any();
-           
+
             if (!fileExists)
             {
-                String filePath = $"F:\\SankhaProjects\\BudgetTracker\\DailyBudget\\{formattedToday}.json";
-
-                String yesterdayFilePath = $"F:\\SankhaProjects\\BudgetTracker\\DailyBudget\\{formattedYesterday}.json";
+                String filePath = Path.Combine(basePath, $"{formattedToday}.json");
+                String yesterdayFilePath = Path.Combine(basePath, $"{formattedYesterday}.json");
 
                 BudgetExecuter.WelcomeMessage(today);
 
                 String? incomeText = BudgetTracker.BudgetExecuter.TakeInput("Income: ");
-
                 String? expenseText = BudgetTracker.BudgetExecuter.TakeInput("Expense: ");
 
                 if (string.IsNullOrWhiteSpace(incomeText) || !double.TryParse(incomeText, out double income))
@@ -94,17 +91,16 @@ class BudgetViewer
                 await Task.Delay(10000);
                 Console.ReadKey();
             }
-            else if(!BudgetTracker.BudgetExecuter.IsFolderEmpty(folderPath) && !fileYestExists)
+            else if (!BudgetTracker.BudgetExecuter.IsFolderEmpty(folderPath) && !fileYestExists)
             {
-                String filePath = $"F:\\SankhaProjects\\BudgetTracker\\DailyBudget\\{formattedYesterday}.json";
+                String filePath = Path.Combine(basePath, $"{formattedYesterday}.json");
                 DateOnly dayBeforeYesterday = today.AddDays(-1);
                 String formattedDayBeforeYesterday = dayBeforeYesterday.ToString("yyyyMMdd");
-                String dayBeforeYesterdayFilePath = $"F:\\SankhaProjects\\BudgetTracker\\DailyBudget\\{formattedDayBeforeYesterday}.json";
+                String dayBeforeYesterdayFilePath = Path.Combine(basePath, $"{formattedDayBeforeYesterday}.json");
 
                 BudgetTracker.BudgetExecuter.WelcomeMessage(yesterday);
 
                 String? incomeText = BudgetTracker.BudgetExecuter.TakeInput("Income: ");
-
                 String? expenseText = BudgetTracker.BudgetExecuter.TakeInput("Expense: ");
 
                 if (string.IsNullOrWhiteSpace(incomeText) || !double.TryParse(incomeText, out double income))
@@ -159,17 +155,16 @@ class BudgetViewer
                 Console.WriteLine("press any key to close");
                 await Task.Delay(10000);
                 Console.ReadKey();
-
             }
             else
             {
                 throw new Exception("File already existig, try again tomorrow");
             }
-        
-        } catch (Exception e)
+
+        }
+        catch (Exception e)
         {
             Console.WriteLine(e.Message);
         }
     }
-  
 }
